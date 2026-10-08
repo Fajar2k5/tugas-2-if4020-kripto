@@ -6,8 +6,11 @@ from .sbox import SBOX
 
 __all__ = ["validate_key", "generate_round_keys"] # supaya membantu generator API Docs
 
+# _permute = transpose grid 4x4, hanya bisa untuk BLOCK_SIZE = 16.
+assert BLOCK_SIZE == 16, f"_permute butuh BLOCK_SIZE=16, sekarang {BLOCK_SIZE}."
+
 # dipakai untuk key whitening sebelum ronde pertama.
-_KERNEL: bytes = b"KERIS-128-KERNEL"
+_KERNEL: bytes = b"TUNG-128-KERNEL!"
 assert len(_KERNEL) == BLOCK_SIZE, "Panjang kernel harus sama dengan BLOCK_SIZE"
 
 
@@ -41,9 +44,25 @@ def _rotl_bytes(data: bytes, shift: int) -> bytes:
     return data[shift:] + data[:shift]
 
 
+def _rotl_byte(value: int, shift: int) -> int:
+    # rotate kiri satu byte (8 bit)
+    shift %= 8
+    if shift == 0:
+        return value & 0xFF
+    return ((value << shift) | (value >> (8 - shift))) & 0xFF
+
+
 def _diffuse(state: bytes) -> bytes:
-    # difusi byte
-    return bytes(a ^ b ^ c for a, b, c in zip(state, _rotl_bytes(state, 3), _rotl_bytes(state, 11)))
+    return bytes(
+        a ^ b ^ c ^ d ^ e
+        for a, b, c, d, e in zip(
+            state,
+            _rotl_bytes(state, 11),  # Tung
+            _rotl_bytes(state, 13),  # Tung
+            _rotl_bytes(state, 14),  # Tung
+            _rotl_bytes(state, 15),  # Sahur
+        )
+    )
 
 
 def _round_constant(round_index: int) -> bytes:
@@ -57,12 +76,16 @@ def _round_constant(round_index: int) -> bytes:
 
 
 def _fold_key(raw: bytes) -> bytes:
-    # kompresi kunci > KEY_SIZE menjadi KEY_SIZE
+    # Kunci > 16 byte dipadatkan jadi 16 byte dengan
+    # mempertimbangkan urutan byte agar dua kunci yang isinya sama
+    # tapi urutannya beda tidak menghasilkan round key yang sama
     if len(raw) == KEY_SIZE:
         return raw
     folded = bytearray(KEY_SIZE)
     for i, byte in enumerate(raw):
-        folded[i % KEY_SIZE] ^= byte
+        slot = i % KEY_SIZE
+        order_marker = (i % 7) + 1  # besarnya putaran
+        folded[slot] ^= _rotl_byte(byte, order_marker) ^ ((i // KEY_SIZE) * 0x1D & 0xFF)
     mixed = _diffuse(bytes(SBOX[b] for b in folded))
     return mixed
 

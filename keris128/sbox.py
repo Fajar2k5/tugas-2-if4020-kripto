@@ -40,7 +40,7 @@ def _build_sbox() -> tuple[int, ...]:
     return table
 
 
-# Tabel substitusi maju (256 entri)
+# Tabel substitusi
 SBOX: tuple[int, ...] = _build_sbox()
 
 # Tabel substitusi invers, dengan membalik permutasi sbox
