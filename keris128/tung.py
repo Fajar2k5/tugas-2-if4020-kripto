@@ -153,6 +153,18 @@ def unpad(data: bytes, block_size: int = BLOCK_SIZE) -> bytes:
     return data[:-pad_len]
 
 
+def compute_cbc_mac(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    if not data or len(data) % BLOCK_SIZE != 0:
+        data = pad(data)
+    prev = iv if iv is not None else bytes(BLOCK_SIZE)
+    for i in range(0, len(data), BLOCK_SIZE):
+        block = data[i:i + BLOCK_SIZE]
+        xored = _xor_bytes(block, prev)
+        ciphertext_block = encrypt_block(xored, round_keys)
+        prev = ciphertext_block
+    return prev
+
+
 def encrypt(data: bytes, key: bytes, mode: str, iv: bytes | None = None) -> bytes:
     if mode not in ENCRYPT_MODES:
         raise ValueError(f"Mode '{mode}' tidak didukung.")
