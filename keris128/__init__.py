@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .block import decrypt_block, encrypt_block
 from .constants import BLOCK_SIZE, KEY_SIZE, NUM_ROUNDS
 from .key_schedule import generate_round_keys, validate_key
 from .sbox import (

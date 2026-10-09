@@ -4,7 +4,7 @@ from .constants import BLOCK_SIZE, KEY_SIZE, NUM_ROUNDS
 from .gf import gf_mul
 from .sbox import SBOX
 
-__all__ = ["validate_key", "generate_round_keys"] # supaya membantu generator API Docs
+__all__ = ["validate_key", "generate_round_keys"] # API Docs
 
 # _permute = transpose grid 4x4, hanya bisa untuk BLOCK_SIZE = 16.
 assert BLOCK_SIZE == 16, f"_permute butuh BLOCK_SIZE=16, sekarang {BLOCK_SIZE}."

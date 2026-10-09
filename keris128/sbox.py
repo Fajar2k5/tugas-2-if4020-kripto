@@ -10,7 +10,7 @@ __all__ = [
     "inv_sbox_sub",
     "sbox_sub_bytes",
     "inv_sbox_sub_bytes",
-] # supaya membantu generator API Docs
+] # generator API Docs
 
 
 def _rotl8(value: int, shift: int) -> int:
