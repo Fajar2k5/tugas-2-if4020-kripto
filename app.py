@@ -51,7 +51,6 @@ class TUNGApp(tk.Tk):
         charts = ttk.Frame(frame); charts.pack(fill="both", expand=True)
         self.plain_chart = self._chart(charts, "Plaintext byte histogram")
         self.cipher_chart = self._chart(charts, "Ciphertext byte histograms — all modes")
-        ttk.Label(frame, text="Warning: block.py is marked MOCK. Results do not represent a completed cipher or establish security.", foreground="#a33", wraplength=850).pack(anchor="w", pady=(8, 0))
 
     def _chart(self, parent: ttk.Frame, title: str) -> tk.Canvas:
         box = ttk.LabelFrame(parent, text=title, padding=5); box.pack(side="left", fill="both", expand=True, padx=4)
