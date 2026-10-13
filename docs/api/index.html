@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dokumentasi fungsi API Python TUNG-128: enkripsi, envelope terautentikasi, dan analisis statistik.">
+  <title>Dokumentasi API — TUNG-128</title>
+  <style>
+    :root { color-scheme: light; --ink:#17202a; --muted:#536273; --line:#d8e0e8; --accent:#155eef; --paper:#fff; --wash:#f4f7fb; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--wash); color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    header { background:#102a43; color:#fff; padding:42px 22px; }
+    header div, main { max-width:980px; margin:auto; }
+    h1 { margin:0 0 8px; font-size:clamp(2rem,5vw,3rem); line-height:1.15; }
+    header p { margin:0; color:#d9e6f2; }
+    main { padding:26px 18px 60px; }
+    nav, article, .notice { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:20px 24px; margin:0 0 18px; }
+    nav a { color:var(--accent); margin-right:14px; white-space:nowrap; }
+    h2 { margin:0 0 12px; font-size:1.45rem; }
+    h3 { margin:22px 0 6px; font-size:1.12rem; }
+    p { margin:8px 0; }
+    code, pre { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+    code { background:#edf2f7; border-radius:4px; padding:2px 5px; overflow-wrap:anywhere; }
+    pre { background:#102a43; color:#eef6ff; padding:16px; border-radius:8px; overflow:auto; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th,td { text-align:left; vertical-align:top; padding:9px 10px; border-bottom:1px solid var(--line); }
+    th { background:#f4f7fb; }
+    .notice { border-left:5px solid #e49318; }
+    .muted { color:var(--muted); }
+    footer { color:var(--muted); text-align:center; padding:20px; }
+    @media(max-width:650px) { nav,article,.notice { padding:16px; } table { display:block; overflow-x:auto; } }
+  </style>
+</head>
+<body>
+  <header><div>
+    <h1>Dokumentasi API TUNG-128</h1>
+    <p>Referensi fungsi Python untuk enkripsi berkas, autentikasi, dan analisis.</p>
+  </div></header>
+  <main>
+    <nav aria-label="Daftar isi">
+      <a href="#deskripsi">Deskripsi</a><a href="#enkripsi">Enkripsi</a><a href="#envelope">Envelope</a><a href="#analisis">Analisis</a><a href="#contoh">Contoh</a>
+    </nav>
+    <aside class="notice">
+      <strong>Jenis API:</strong> fungsi-fungsi ini adalah API Python yang dipanggil langsung di program desktop, bukan endpoint HTTP/REST.
+    </aside>
+
+    <article id="deskripsi">
+      <h2>1. Deskripsi API</h2>
+      <p>API menyediakan operasi enkripsi/dekripsi TUNG-128, pembungkusan berkas dengan tag integritas, dan pengukuran statistik ciphertext. Modul utama adalah <code>keris128.tung</code>, <code>keris128.member_d_container</code>, dan <code>keris128.analysis</code>.</p>
+      <p>Data berkas direpresentasikan sebagai <code>bytes</code>. Kunci yang diterima implementasi saat ini harus tepat 16 byte. Mode yang tersedia adalah <code>"ECB"</code>, <code>"CBC"</code>, <code>"CFB"</code>, <code>"OFB"</code>, dan <code>"CTR"</code>. Fungsi mode menerapkan padding PKCS#7.</p>
+    </article>
+
+    <article id="enkripsi">
+      <h2>2. Enkripsi dan dekripsi langsung</h2>
+      <h3><code>keris128.tung.encrypt(data, key, mode, iv=None) -&gt; bytes</code></h3>
+      <table><thead><tr><th>Parameter</th><th>Tipe</th><th>Keterangan</th></tr></thead><tbody>
+        <tr><td><code>data</code></td><td><code>bytes</code></td><td>Plaintext, dapat berupa teks terenkode atau data biner.</td></tr>
+        <tr><td><code>key</code></td><td><code>bytes</code></td><td>Kunci master tepat 16 byte pada API saat ini.</td></tr>
+        <tr><td><code>mode</code></td><td><code>str</code></td><td>Nama mode: ECB, CBC, CFB, OFB, atau CTR (huruf besar).</td></tr>
+        <tr><td><code>iv</code></td><td><code>bytes | None</code></td><td>IV/counter 16 byte untuk CBC, CFB, OFB, dan CTR. Abaikan pada ECB.</td></tr>
+        <tr><td>Keluaran</td><td><code>bytes</code></td><td>Ciphertext yang sudah diberi padding. Untuk penyimpanan berintegritas, gunakan <code>seal</code>.</td></tr>
+      </tbody></table>
+      <h3><code>keris128.tung.decrypt(data, key, mode, iv=None) -&gt; bytes</code></h3>
+      <p>Parameter masukan sama seperti <code>encrypt</code>, dengan <code>data</code> berupa ciphertext berpadding. Keluaran adalah plaintext setelah padding divalidasi dan dilepas. Fungsi langsung ini tidak memverifikasi tag integritas.</p>
+    </article>
+
+    <article id="envelope">
+      <h2>Envelope berintegritas</h2>
+      <h3><code>keris128.member_d_container.seal(data, key, mode, iv=None) -&gt; tuple[bytes, bytes | None]</code></h3>
+      <table><thead><tr><th>Parameter</th><th>Tipe</th><th>Keterangan</th></tr></thead><tbody>
+        <tr><td><code>data</code></td><td><code>bytes</code></td><td>Plaintext yang akan dienkripsi.</td></tr>
+        <tr><td><code>key</code></td><td><code>bytes</code></td><td>Kunci master tepat 16 byte.</td></tr>
+        <tr><td><code>mode</code></td><td><code>str</code></td><td>Salah satu dari lima mode yang didukung.</td></tr>
+        <tr><td><code>iv</code></td><td><code>bytes | None</code></td><td>IV/counter 16 byte. Jika <code>None</code> pada mode selain ECB, API membuat IV acak.</td></tr>
+        <tr><td>Keluaran</td><td><code>tuple[bytes, bytes | None]</code></td><td><code>(envelope, iv_efektif)</code>. Envelope berisi penanda format, mode, IV, ciphertext, dan tag HMAC-SHA-256.</td></tr>
+      </tbody></table>
+      <h3><code>keris128.member_d_container.open_sealed(envelope, key) -&gt; tuple[bytes, str, bytes | None]</code></h3>
+      <p>Masukan <code>envelope: bytes</code> dan <code>key: bytes</code> (16 byte). Keluaran adalah <code>(plaintext, mode, iv)</code>. Tag diperiksa sebelum dekripsi. Format salah, kunci salah, atau data termodifikasi akan menghasilkan <code>ValueError</code>.</p>
+    </article>
+
+    <article id="analisis">
+      <h2>Analisis keamanan</h2>
+      <h3><code>keris128.analysis.byte_entropy(data) -&gt; float</code></h3>
+      <p>Masukan <code>data: bytes</code>; keluaran entropi Shannon dalam bit per byte, rentang 0–8. Data kosong menghasilkan 0.</p>
+      <h3><code>keris128.analysis.byte_histogram(data) -&gt; list[int]</code></h3>
+      <p>Masukan <code>data: bytes</code>; keluaran daftar 256 bilangan bulat. Indeks daftar adalah nilai byte (0–255), sedangkan nilai elemennya frekuensi kemunculan.</p>
+      <h3><code>keris128.analysis.avalanche_bits(left, right) -&gt; tuple[int, int, float]</code></h3>
+      <p>Masukan dua <code>bytes</code> dengan panjang sama; keluaran <code>(bit_berubah, total_bit, persentase)</code>. Panjang berbeda menghasilkan <code>ValueError</code>.</p>
+      <h3><code>keris128.analysis.analyze_modes(data, key, iv) -&gt; dict[str, dict[str, float]]</code></h3>
+      <p>Menghitung entropi plaintext/ciphertext dan panjang byte untuk kelima mode. Masukan: <code>data: bytes</code>, <code>key: bytes</code> 16 byte, <code>iv: bytes</code> 16 byte (diabaikan untuk ECB). Keluaran memakai nama mode sebagai kunci; setiap nilai berisi <code>plaintext_bits_per_byte</code>, <code>ciphertext_bits_per_byte</code>, <code>plaintext_bytes</code>, dan <code>ciphertext_bytes</code>.</p>
+      <h3><code>keris128.analysis.avalanche_modes(data, key, iv) -&gt; dict[str, dict[str, float]]</code></h3>
+      <p>Masukan sama seperti <code>analyze_modes</code>. Keluaran berisi tiap mode dan ukuran perubahan ciphertext untuk pembalikan satu bit plaintext serta satu bit kunci: <code>plaintext_changed_bits</code>, <code>plaintext_percent</code>, <code>key_changed_bits</code>, dan <code>key_percent</code>.</p>
+    </article>
+
+    <article id="contoh">
+      <h2>3. Contoh penggunaan API</h2>
+      <pre><code>from keris128.member_d_container import seal, open_sealed
+
+plaintext = b"Contoh pesan TUNG-128"
+key = bytes.fromhex("00112233445566778899aabbccddeeff")
+
+# CBC dengan IV yang dibuat otomatis oleh seal
+envelope, iv = seal(plaintext, key, "CBC")
+hasil, mode, iv_tersimpan = open_sealed(envelope, key)
+
+assert hasil == plaintext
+assert mode == "CBC"
+assert iv == iv_tersimpan</code></pre>
+      <h2>4. Penjelasan tambahan</h2>
+      <ul>
+        <li>Jangan memakai ulang IV pada CBC/CFB/OFB atau counter/nonce pada CTR dengan kunci yang sama.</li>
+        <li>Gunakan <code>seal</code>/<code>open_sealed</code> untuk berkas agar mode, IV, ciphertext, dan tag integritas terikat bersama.</li>
+        <li>API ini adalah fungsi Python lokal, bukan layanan jaringan; halaman ini hanya dokumentasi publik statis.</li>
+      </ul>
+    </article>
+    <footer>Dokumentasi API TUNG-128 · IF4020 Kriptografi</footer>
+  </main>
+</body>
+</html>
