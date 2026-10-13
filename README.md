@@ -25,4 +25,4 @@ python app.py
 
 Masukkan kunci 16 byte dalam bentuk 32 digit heksadesimal. Pilih berkas dan mode operasi. Untuk CBC, CFB, OFB, atau CTR, masukkan IV/counter 16 byte atau tekan **Generate**. Pilih **Encrypt…**, **Decrypt…**, atau **Analyze + avalanche** sesuai kebutuhan. Berkas terenkripsi menyimpan mode, IV/counter, ciphertext, dan tag integritas.
 
-Dokumentasi fungsi API tersedia di [Dokumentasi API TUNG-128](docs/api/index.html). Halaman ini disiapkan sebagai dokumentasi statis; alamat hosting publik akan tersedia setelah GitHub Pages aktif.
+Dokumentasi fungsi API tersedia di [API Documentation](https://fajar2k5.github.io/tugas-2-if4020-kripto/).
