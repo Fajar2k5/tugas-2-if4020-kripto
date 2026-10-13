@@ -1,4 +1,4 @@
-# Parameter global cipher
+"""Parameter blok, key, ronde, dan S-box TUNG-128."""
 
 from __future__ import annotations
 

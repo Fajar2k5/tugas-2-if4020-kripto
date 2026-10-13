@@ -1,3 +1,5 @@
+"""Fungsi enkripsi dan dekripsi satu blok TUNG-128."""
+
 from __future__ import annotations
 
 from .constants import BLOCK_SIZE, NUM_ROUNDS
@@ -100,6 +102,7 @@ def _byte_xor(a: bytes, b: bytes) -> bytes:
     return bytes(x ^ y for x, y in zip(a, b))
 
 def encrypt_block(block: bytes, round_keys: list[bytes]) -> bytes:
+    """Enkripsi satu blok 16 byte dengan daftar round key."""
     # input : block = bytes 16 byte, round_keys = list 16 bytes @ 16 byte
     # output: bytes 16 byte
     # Feistel terbalik: kanan yang dihitung, kiri diteruskan apa adanya ke kanan
@@ -111,6 +114,7 @@ def encrypt_block(block: bytes, round_keys: list[bytes]) -> bytes:
     return left + right
 
 def decrypt_block(block: bytes, round_keys: list[bytes]) -> bytes:
+    """Dekripsi satu blok 16 byte dengan daftar round key."""
     # input : block = bytes 16 byte, round_keys = list 16 bytes @ 16 byte
     # output: bytes 16 byte
     state = _check_block(block)

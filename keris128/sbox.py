@@ -1,3 +1,5 @@
+"""Tabel substitusi byte dan fungsi invers S-box TUNG-128."""
+
 from __future__ import annotations
 
 from .constants import SBOX_AFFINE_CONST
@@ -60,12 +62,12 @@ def _check_byte(value: int, name: str = "x") -> int:
 
 
 def sbox_sub(x: int) -> int:
-    # Substitusi melalui lookup S-box 
+    """Ganti satu byte dengan nilai pada tabel S-box."""
     return SBOX[_check_byte(x)]
 
 
 def inv_sbox_sub(x: int) -> int:
-    # Inverse substitusi melalui lookup S-box invserse
+    """Kembalikan substitusi satu byte melalui tabel invers S-box."""
     return INV_SBOX[_check_byte(x)]
 
 
@@ -76,8 +78,10 @@ def _apply(table: tuple[int, ...], data: bytes) -> bytes:
 
 
 def sbox_sub_bytes(data: bytes) -> bytes:
+    """Terapkan substitusi S-box ke setiap byte."""
     return _apply(SBOX, data)
 
 
 def inv_sbox_sub_bytes(data: bytes) -> bytes:
+    """Terapkan substitusi invers S-box ke setiap byte."""
     return _apply(INV_SBOX, data)

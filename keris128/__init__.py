@@ -1,3 +1,5 @@
+"""API utama TUNG-128 untuk enkripsi, dekripsi, dan berkas berintegritas."""
+
 from __future__ import annotations
 
 import hashlib
@@ -28,7 +30,7 @@ def _authentication_key(key: bytes) -> bytes:
 
 
 def seal(data: bytes, key: bytes, mode: str, iv: bytes | None = None) -> tuple[bytes, bytes | None]:
-    """Encrypt data and return an authenticated envelope plus its effective IV."""
+    """Enkripsi data dan wrap ciphertext dengan informasi mode, IV, serta tag."""
     key = validate_key(key)
     mode = mode.upper()
     if mode not in MODE_TO_ID:
@@ -45,7 +47,7 @@ def seal(data: bytes, key: bytes, mode: str, iv: bytes | None = None) -> tuple[b
 
 
 def open_sealed(envelope: bytes, key: bytes) -> tuple[bytes, str, bytes | None]:
-    """Check the tag over mode, IV, and ciphertext before decrypting."""
+    """Verifikasi tag envelope lalu kembalikan plaintext, mode, dan IV."""
     key = validate_key(key)
     prefix_size = len(MAGIC) + 2
     if len(envelope) < prefix_size + BLOCK_SIZE + TAG_SIZE or not envelope.startswith(MAGIC):

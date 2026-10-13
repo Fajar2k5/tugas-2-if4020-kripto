@@ -1,5 +1,4 @@
-# Avalanche effect: persentase bit ciphertext yang berubah ketika
-# satu bit masukan (plaintext atau master key) dibalik
+"""Fungsi untuk mengukur perubahan ciphertext saat satu bit input dibalik."""
 
 from __future__ import annotations
 
@@ -21,7 +20,7 @@ __all__ = [
 
 
 def flip_bit(data: bytes, bit_index: int) -> bytes:
-    # Balik bit data
+    """Balik satu bit pada data dengan indeks MSB-first."""
     buf = bytearray(data)
     total_bits = len(buf) * 8
     if not 0 <= bit_index < total_bits:
@@ -33,14 +32,14 @@ def flip_bit(data: bytes, bit_index: int) -> bytes:
 
 
 def hamming_distance(a: bytes, b: bytes) -> int:
-    # Jumlah bit berbeda antara dua barisan byte berukuran sama
+    """Hitung jumlah bit berbeda pada dua data dengan panjang sama."""
     if len(a) != len(b):
         raise ValueError("hamming_distance memerlukan dua data berukuran sama")
     return sum((x ^ y).bit_count() for x, y in zip(a, b))
 
 
 def bit_change_percentage(a: bytes, b: bytes) -> float:
-    # Persentase bit berbeda terhadap total bit
+    """Hitung persentase bit berbeda antara dua data."""
     distance = hamming_distance(a, b)
     total_bits = len(a) * 8
     if total_bits == 0:
@@ -99,7 +98,7 @@ def avalanche_key_effect(
     key: bytes,
     bit_positions: Sequence[int] | None = None,
 ) -> dict:
-    # Ukur avalanche effect akibat perubahan 1 bit master key.
+    """Ukur perubahan ciphertext saat satu bit master key dibalik."""
     return _run(encrypt, bytes(data), bytes(key), "key", len(key) * 8, bit_positions)
 
 
@@ -109,7 +108,7 @@ def avalanche_plaintext_effect(
     key: bytes,
     bit_positions: Sequence[int] | None = None,
 ) -> dict:
-    # Ukur avalanche effect akibat perubahan **1 bit plaintext**.
+    """Ukur perubahan ciphertext saat satu bit plaintext dibalik."""
 
     return _run(encrypt, bytes(data), bytes(key), "plaintext", len(data) * 8, bit_positions)
 
@@ -119,11 +118,6 @@ def make_mode_encryptor(
     mode: str,
     iv: bytes | None = None,
 ) -> EncryptFn:
-    """Wrap fungsi encrypt(data, key, mode[, iv]) menjadi (data, key).
-
-    IV/counter dipertahankan konstan di antara dua enkripsi supaya perubahan
-    ciphertext murni disebabkan oleh bit yang dibalik.
-    """
 
     def _encrypt(data: bytes, key: bytes) -> bytes:
         if iv is None:
@@ -134,7 +128,7 @@ def make_mode_encryptor(
 
 
 def summarize(results: dict[str, dict]) -> str:
-    # Format ringkas hasil avalanche per mode
+    """Format ringkasan persentase avalanche untuk tiap mode."""
     lines = ["mode      avg%    min%    max%    sampel"]
     lines.append("-" * 45)
     for mode, res in results.items():
@@ -153,7 +147,7 @@ def avalanche_key_by_mode(
     iv: bytes | None = None,
     bit_positions: Sequence[int] | None = None,
 ) -> dict[str, dict]:
-    # Jalankan fungsiavalanche_key_effect untuk sejumlah mode operasi.
+    """Ukur efek perubahan satu bit key pada beberapa mode."""
     results: dict[str, dict] = {}
     for mode in modes:
         enc = make_mode_encryptor(encrypt_mode_fn, mode, iv)
@@ -169,7 +163,7 @@ def avalanche_plaintext_by_mode(
     iv: bytes | None = None,
     bit_positions: Sequence[int] | None = None,
 ) -> dict[str, dict]:
-    # Jalankan avalanche_plaintext_effect untuk tiap mode operasi
+    """Ukur efek perubahan satu bit plaintext pada beberapa mode."""
     results: dict[str, dict] = {}
     for mode in modes:
         enc = make_mode_encryptor(encrypt_mode_fn, mode, iv)

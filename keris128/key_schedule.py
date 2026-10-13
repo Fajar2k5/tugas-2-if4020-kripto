@@ -1,3 +1,5 @@
+"""Validasi master key dan pembangkitan round key TUNG-128."""
+
 from __future__ import annotations
 
 from .constants import BLOCK_SIZE, KEY_SIZE, NUM_ROUNDS
@@ -21,6 +23,7 @@ def _check_type(master_key: object) -> bytes:
 
 
 def validate_key(master_key: bytes) -> bytes:
+    """Validasi master key dengan panjang minimal sesuai parameter cipher."""
     raw = _check_type(master_key)
     if len(raw) < KEY_SIZE:
         raise ValueError(
@@ -91,7 +94,7 @@ def _fold_key(raw: bytes) -> bytes:
 
 
 def generate_round_keys(master_key: bytes) -> list[bytes]:
-    # Bangkitkan daftar round key dari master key
+    """Bangkitkan seluruh round key dari master key."""
     key = _fold_key(validate_key(master_key))
 
     # key whitening

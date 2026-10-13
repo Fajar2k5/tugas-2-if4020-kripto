@@ -1,3 +1,5 @@
+"""Fungsi untuk menyimpan dan membaca berkas terenkripsi."""
+
 from __future__ import annotations
 
 from .constants import BLOCK_SIZE
@@ -7,6 +9,7 @@ from .tung import compute_cbc_mac, decrypt, encrypt
 
 
 def combine(iv: bytes | None, ciphertext: bytes, mac: bytes | None = None) -> bytes:
+    """Gabungkan IV, ciphertext, dan MAC menjadi satu berkas."""
     out = bytearray()
     if iv is not None:
         out.extend(iv)
@@ -19,6 +22,7 @@ def combine(iv: bytes | None, ciphertext: bytes, mac: bytes | None = None) -> by
 def separate(
     data: bytes, has_iv: bool = True, has_mac: bool = False
 ) -> tuple[bytes | None, bytes, bytes | None]:
+    """Pisahkan IV, ciphertext, dan MAC dari data berkas."""
     iv = None
     mac = None
     start = 0
@@ -48,6 +52,7 @@ def write_encrypted(
     iv: bytes | None = None,
     use_mac: bool = True,
 ) -> None:
+    """Enkripsi data dan simpan ciphertext beserta IV serta MAC opsional."""
     mode_upper = mode.upper()
     if mode_upper != "ECB" and iv is None:
         iv = generate_iv()
@@ -71,6 +76,7 @@ def read_encrypted(
     mode: str,
     has_mac: bool = True,
 ) -> bytes:
+    """Baca, verifikasi, dan dekripsi berkas sesuai mode yang dipilih."""
     mode_upper = mode.upper()
     with open(filepath, "rb") as f:
         raw = f.read()

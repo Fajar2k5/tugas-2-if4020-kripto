@@ -1,3 +1,5 @@
+"""Fungsi entropi, histogram, dan analisis mode TUNG-128."""
+
 from __future__ import annotations
 
 import math
@@ -15,7 +17,7 @@ __all__ = [
 
 
 def byte_entropy(data: bytes) -> float:
-    """Return Shannon entropy in bits per byte (range 0..8)."""
+    """Hitung entropi Shannon data dalam satuan bit per byte."""
     if not data:
         return 0.0
     counts = Counter(data)
@@ -24,7 +26,7 @@ def byte_entropy(data: bytes) -> float:
 
 
 def byte_histogram(data: bytes) -> list[int]:
-    """Return counts for byte values 0 through 255."""
+    """Hitung frekuensi setiap nilai byte dari 0 sampai 255."""
     counts = [0] * 256
     for value in data:
         counts[value] += 1
@@ -32,7 +34,7 @@ def byte_histogram(data: bytes) -> list[int]:
 
 
 def avalanche_bits(left: bytes, right: bytes) -> tuple[int, int, float]:
-    """Return changed bits, compared bits, and changed-bit percentage."""
+    """Hitung jumlah bit berubah, total bit, dan persentasenya."""
     if len(left) != len(right):
         raise ValueError("Data harus memiliki panjang yang sama untuk uji avalanche.")
     changed = sum((a ^ b).bit_count() for a, b in zip(left, right))
@@ -41,7 +43,7 @@ def avalanche_bits(left: bytes, right: bytes) -> tuple[int, int, float]:
 
 
 def analyze_modes(data: bytes, key: bytes, iv: bytes) -> dict[str, dict[str, float]]:
-    """Measure ciphertext entropy and plaintext/ciphertext entropy per mode."""
+    """Hitung entropi dan ukuran plaintext/ciphertext untuk semua mode."""
     results = {}
     for mode in ("ECB", "CBC", "CFB", "OFB", "CTR"):
         ciphertext = encrypt(data, key, mode, None if mode == "ECB" else iv)
@@ -55,7 +57,7 @@ def analyze_modes(data: bytes, key: bytes, iv: bytes) -> dict[str, dict[str, flo
 
 
 def avalanche_modes(data: bytes, key: bytes, iv: bytes) -> dict[str, dict[str, float]]:
-    """Measure output change for one plaintext-bit and one key-bit flip per mode."""
+    """Ukur perubahan ciphertext setelah satu bit plaintext dan key dibalik per mode."""
     sample = data if data else b"\x00"
     changed_plaintext = bytearray(sample)
     changed_plaintext[0] ^= 1

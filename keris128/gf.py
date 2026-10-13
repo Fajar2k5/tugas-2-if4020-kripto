@@ -1,4 +1,4 @@
-# Aritmetika medan berhingga GF(2^8)
+"""Operasi aritmetika pada GF(2^8) untuk konstruksi S-box."""
 
 from __future__ import annotations
 from .constants import SBOX_POLY
@@ -6,7 +6,7 @@ from .constants import SBOX_POLY
 _MASK: int = 0xFF
 
 def gf_mul(a: int, b: int, poly: int = SBOX_POLY) -> int:
-    # Perkalian di GF(2^8)
+    """Kalikan dua nilai dalam GF(2^8) dengan polinomial yang diberikan."""
     a &= _MASK
     b &= _MASK
     product = 0
@@ -22,7 +22,7 @@ def gf_mul(a: int, b: int, poly: int = SBOX_POLY) -> int:
 
 
 def gf_pow(a: int, exponent: int, poly: int = SBOX_POLY) -> int:
-    # Eksponensial
+    """Pangkatkan nilai dalam GF(2^8) dengan eksponen bilangan bulat."""
     result = 1
     base = a & _MASK
     while exponent > 0:
@@ -34,7 +34,7 @@ def gf_pow(a: int, exponent: int, poly: int = SBOX_POLY) -> int:
 
 
 def gf_inv(a: int, poly: int = SBOX_POLY) -> int:
-    # Invers
+    """Cari invers perkalian nilai dalam GF(2^8)."""
     a &= _MASK
     if a == 0:
         return 0

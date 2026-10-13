@@ -1,3 +1,5 @@
+"""Implementasi mode operasi dan padding untuk TUNG-128."""
+
 from __future__ import annotations
 
 from .block import decrypt_block, encrypt_block
@@ -10,6 +12,7 @@ def _xor_bytes(a: bytes, b: bytes) -> bytes:
 
 
 def encrypt_ecb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Enkripsi blok secara independen dalam mode ECB."""
     ciphertext = bytearray()
     for i in range(0, len(data), BLOCK_SIZE):
         plaintext_block = data[i:i + BLOCK_SIZE]
@@ -18,6 +21,7 @@ def encrypt_ecb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
 
 
 def encrypt_cbc(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Enkripsi blok dengan chaining pada mode CBC."""
     ciphertext = bytearray()
     prev = iv
     for i in range(0, len(data), BLOCK_SIZE):
@@ -30,6 +34,7 @@ def encrypt_cbc(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
 
 
 def encrypt_cfb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Enkripsi data menggunakan mode CFB."""
     ciphertext = bytearray()
     prev = iv
     for i in range(0, len(data), BLOCK_SIZE):
@@ -42,6 +47,7 @@ def encrypt_cfb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
 
 
 def encrypt_ofb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Enkripsi data menggunakan keystream mode OFB."""
     ciphertext = bytearray()
     prev = iv
     for i in range(0, len(data), BLOCK_SIZE):
@@ -54,6 +60,7 @@ def encrypt_ofb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
 
 
 def encrypt_ctr(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Enkripsi data menggunakan counter mode CTR."""
     counter_int = int.from_bytes(iv, byteorder="big")
     modulus = 1 << (BLOCK_SIZE * 8)
     ciphertext = bytearray()
@@ -67,6 +74,7 @@ def encrypt_ctr(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
 
 
 def decrypt_ecb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Dekripsi blok secara independen dalam mode ECB."""
     plaintext = bytearray()
     for i in range(0, len(data), BLOCK_SIZE):
         ciphertext_block = data[i:i + BLOCK_SIZE]
@@ -75,6 +83,7 @@ def decrypt_ecb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
 
 
 def decrypt_cbc(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Dekripsi blok berantai dalam mode CBC."""
     plaintext = bytearray()
     prev = iv
     for i in range(0, len(data), BLOCK_SIZE):
@@ -86,6 +95,7 @@ def decrypt_cbc(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
 
 
 def decrypt_cfb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Dekripsi data menggunakan mode CFB."""
     plaintext = bytearray()
     prev = iv
     for i in range(0, len(data), BLOCK_SIZE):
@@ -97,6 +107,7 @@ def decrypt_cfb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
 
 
 def decrypt_ofb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Dekripsi data menggunakan keystream mode OFB."""
     plaintext = bytearray()
     prev = iv
     for i in range(0, len(data), BLOCK_SIZE):
@@ -108,6 +119,7 @@ def decrypt_ofb(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
 
 
 def decrypt_ctr(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Dekripsi data menggunakan counter mode CTR."""
     counter_int = int.from_bytes(iv, byteorder="big")
     modulus = 1 << (BLOCK_SIZE * 8)
     plaintext = bytearray()
@@ -120,6 +132,7 @@ def decrypt_ctr(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -
     return bytes(plaintext)
 
 
+#: Pemetaan nama mode ke fungsi enkripsi blok.
 ENCRYPT_MODES = {
     "ECB": encrypt_ecb,
     "CBC": encrypt_cbc,
@@ -128,6 +141,7 @@ ENCRYPT_MODES = {
     "CTR": encrypt_ctr,
 }
 
+#: Pemetaan nama mode ke fungsi dekripsi blok.
 DECRYPT_MODES = {
     "ECB": decrypt_ecb,
     "CBC": decrypt_cbc,
@@ -138,11 +152,13 @@ DECRYPT_MODES = {
 
 
 def pad(data: bytes, block_size: int = BLOCK_SIZE) -> bytes:
+    """Tambahkan padding PKCS#7 agar panjang data kelipatan ukuran blok."""
     pad_len = block_size - (len(data) % block_size)
     return data + bytes([pad_len] * pad_len)
 
 
 def unpad(data: bytes, block_size: int = BLOCK_SIZE) -> bytes:
+    """Validasi dan lepaskan padding PKCS#7 dari data."""
     if not data or len(data) % block_size != 0:
         raise ValueError("Panjang data bukan kelipatan block size.")
     pad_len = data[-1]
@@ -154,6 +170,7 @@ def unpad(data: bytes, block_size: int = BLOCK_SIZE) -> bytes:
 
 
 def compute_cbc_mac(data: bytes, round_keys: list[bytes], iv: bytes | None = None) -> bytes:
+    """Hitung tag CBC-MAC untuk data menggunakan round key yang diberikan."""
     if not data or len(data) % BLOCK_SIZE != 0:
         data = pad(data)
     prev = iv if iv is not None else bytes(BLOCK_SIZE)
@@ -166,6 +183,7 @@ def compute_cbc_mac(data: bytes, round_keys: list[bytes], iv: bytes | None = Non
 
 
 def encrypt(data: bytes, key: bytes, mode: str, iv: bytes | None = None) -> bytes:
+    """Enkripsi data berpanjang bebas dengan mode operasi yang dipilih."""
     if mode not in ENCRYPT_MODES:
         raise ValueError(f"Mode '{mode}' tidak didukung.")
     if len(key) != KEY_SIZE:
@@ -182,6 +200,7 @@ def encrypt(data: bytes, key: bytes, mode: str, iv: bytes | None = None) -> byte
 
 
 def decrypt(data: bytes, key: bytes, mode: str, iv: bytes | None = None) -> bytes:
+    """Dekripsi ciphertext dan lepaskan padding sesuai mode yang dipilih."""
     if mode not in DECRYPT_MODES:
         raise ValueError(f"Mode '{mode}' tidak didukung.")
     if len(key) != KEY_SIZE:
