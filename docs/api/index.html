@@ -22,6 +22,7 @@
     code, pre { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
     code { background:#edf2f7; border-radius:4px; padding:2px 5px; overflow-wrap:anywhere; }
     pre { background:#102a43; color:#eef6ff; padding:16px; border-radius:8px; overflow:auto; }
+    pre code { background:transparent; color:inherit; padding:0; border-radius:0; }
     table { width:100%; border-collapse:collapse; margin:12px 0; }
     th,td { text-align:left; vertical-align:top; padding:9px 10px; border-bottom:1px solid var(--line); }
     th { background:#f4f7fb; }
@@ -46,7 +47,7 @@
 
     <article id="deskripsi">
       <h2>1. Deskripsi API</h2>
-      <p>API menyediakan operasi enkripsi/dekripsi TUNG-128, pembungkusan berkas dengan tag integritas, dan pengukuran statistik ciphertext. Modul utama adalah <code>keris128.tung</code>, <code>keris128.member_d_container</code>, dan <code>keris128.analysis</code>.</p>
+      <p>API menyediakan operasi enkripsi/dekripsi TUNG-128, pembungkusan berkas dengan tag integritas, dan pengukuran statistik ciphertext. Fungsi utama integritas dapat diimpor langsung dari paket <code>keris128</code>; operasi cipher tersedia di <code>keris128.tung</code> dan analisis di <code>keris128.analysis</code>.</p>
       <p>Data berkas direpresentasikan sebagai <code>bytes</code>. Kunci yang diterima implementasi saat ini harus tepat 16 byte. Mode yang tersedia adalah <code>"ECB"</code>, <code>"CBC"</code>, <code>"CFB"</code>, <code>"OFB"</code>, dan <code>"CTR"</code>. Fungsi mode menerapkan padding PKCS#7.</p>
     </article>
 
@@ -66,7 +67,7 @@
 
     <article id="envelope">
       <h2>Envelope berintegritas</h2>
-      <h3><code>keris128.member_d_container.seal(data, key, mode, iv=None) -&gt; tuple[bytes, bytes | None]</code></h3>
+      <h3><code>keris128.seal(data, key, mode, iv=None) -&gt; tuple[bytes, bytes | None]</code></h3>
       <table><thead><tr><th>Parameter</th><th>Tipe</th><th>Keterangan</th></tr></thead><tbody>
         <tr><td><code>data</code></td><td><code>bytes</code></td><td>Plaintext yang akan dienkripsi.</td></tr>
         <tr><td><code>key</code></td><td><code>bytes</code></td><td>Kunci master tepat 16 byte.</td></tr>
@@ -74,7 +75,7 @@
         <tr><td><code>iv</code></td><td><code>bytes | None</code></td><td>IV/counter 16 byte. Jika <code>None</code> pada mode selain ECB, API membuat IV acak.</td></tr>
         <tr><td>Keluaran</td><td><code>tuple[bytes, bytes | None]</code></td><td><code>(envelope, iv_efektif)</code>. Envelope berisi penanda format, mode, IV, ciphertext, dan tag HMAC-SHA-256.</td></tr>
       </tbody></table>
-      <h3><code>keris128.member_d_container.open_sealed(envelope, key) -&gt; tuple[bytes, str, bytes | None]</code></h3>
+      <h3><code>keris128.open_sealed(envelope, key) -&gt; tuple[bytes, str, bytes | None]</code></h3>
       <p>Masukan <code>envelope: bytes</code> dan <code>key: bytes</code> (16 byte). Keluaran adalah <code>(plaintext, mode, iv)</code>. Tag diperiksa sebelum dekripsi. Format salah, kunci salah, atau data termodifikasi akan menghasilkan <code>ValueError</code>.</p>
     </article>
 
@@ -94,7 +95,7 @@
 
     <article id="contoh">
       <h2>3. Contoh penggunaan API</h2>
-      <pre><code>from keris128.member_d_container import seal, open_sealed
+      <pre><code>from keris128 import seal, open_sealed
 
 plaintext = b"Contoh pesan TUNG-128"
 key = bytes.fromhex("00112233445566778899aabbccddeeff")

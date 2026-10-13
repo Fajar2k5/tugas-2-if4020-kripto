@@ -9,7 +9,7 @@ import secrets
 
 from keris128.analysis import analyze_modes, avalanche_modes, byte_entropy, byte_histogram
 from keris128.constants import BLOCK_SIZE, KEY_SIZE
-from keris128.member_d_container import open_sealed, seal
+from keris128 import open_sealed, seal
 from keris128.tung import encrypt
 
 
