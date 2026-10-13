@@ -145,7 +145,6 @@ class TUNGApp(tk.Tk):
             for name, item in metrics.items():
                 av = avalanche[name]
                 lines.append(f"{name:<5}  {item['plaintext_bits_per_byte']:>8.4f}  {item['ciphertext_bits_per_byte']:>9.4f}  {int(item['ciphertext_bytes']):>12}  {av['plaintext_percent']:>6.2f}%  {av['key_percent']:>7.2f}%")
-            lines.extend(["", "PT flip and Key flip are output-bit change percentages after changing the first bit.", "Entropy and avalanche are descriptive tests, not security proofs. ECB ignores IV; use fresh IVs/nonces where the selected mode requires them."])
             self._report("\n".join(lines))
             self._draw_modes(self.cipher_chart, mode_outputs)
             self.status.set("Analysis complete.")
